@@ -50,34 +50,53 @@ const Wizard: React.FC<WizardProps> = ({ onComplete, onClose }) => {
     setError('');
 
     try {
-      // Supabase'e kayıt
-      const { data, error: signUpError } = await signUp(
-        formData.email,
-        formData.password || '',
-        {
-          firstName: formData.firstName,
-          lastName: formData.lastName
+      // Demo mode check: Eğer env var yoksa, direkt frontend-only mode
+      const isDemoMode = !import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (isDemoMode) {
+        // Demo mode: Supabase'i bypass et, direkt login yap
+        console.log('🎭 Demo Mode: Supabase bypass ediliyor, direkt dashboard açılıyor...');
+
+        // 1 saniye fake loading (UX için)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        // Direkt dashboard'a geç
+        onComplete(formData);
+      } else {
+        // Production mode: Gerçek Supabase kayıt
+        const { data, error: signUpError } = await signUp(
+          formData.email,
+          formData.password || '',
+          {
+            firstName: formData.firstName,
+            lastName: formData.lastName
+          }
+        );
+
+        if (signUpError) {
+          setError(signUpError.message);
+          setLoading(false);
+          return;
         }
-      );
 
-      if (signUpError) {
-        setError(signUpError.message);
-        setLoading(false);
-        return;
+        // User profile oluştur
+        if (data.user) {
+          const profileData = { ...formData };
+          delete profileData.password;
+          await createUserProfile(data.user.id, profileData);
+        }
+
+        // Dashboard'a geç
+        onComplete(formData);
       }
-
-      // User profile oluştur
-      if (data.user) {
-        const profileData = { ...formData };
-        delete profileData.password; // Password'u profile'a ekleme
-
-        await createUserProfile(data.user.id, profileData);
-      }
-
-      // Frontend state'e kaydet
-      onComplete(formData);
     } catch (err: any) {
-      setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+      // Hata olsa bile demo mode'da dashboard'a git
+      if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        console.warn('⚠️ Supabase hatası ama demo mode aktif, dashboard açılıyor:', err.message);
+        onComplete(formData);
+      } else {
+        setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+      }
     } finally {
       setLoading(false);
     }
@@ -269,6 +288,15 @@ const Wizard: React.FC<WizardProps> = ({ onComplete, onClose }) => {
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
                   {error}
+                </div>
+              )}
+
+              {!import.meta.env.VITE_SUPABASE_ANON_KEY && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+                  <p className="text-sm text-yellow-900">
+                    <strong>🎭 Demo Mode:</strong> Supabase bağlantısı yok. "Tamamla" butonuna tıklayınca direkt dashboard açılacak.
+                    Gerçek authentication için Vercel'de <code className="bg-yellow-100 px-1 rounded">VITE_SUPABASE_ANON_KEY</code> ekleyin.
+                  </p>
                 </div>
               )}
 

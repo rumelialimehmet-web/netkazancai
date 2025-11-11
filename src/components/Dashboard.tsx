@@ -5,6 +5,7 @@ import ExchangeRateBot from './ExchangeRateBot';
 import TaskManager from './TaskManager';
 import AIAssistant from './AIAssistant';
 import PetitionGenerator from './PetitionGenerator';
+import TaxCalendar from './TaxCalendar';
 import { useNotifications } from '../contexts/NotificationContext';
 
 interface DashboardProps {
@@ -95,19 +96,20 @@ const Dashboard: React.FC<DashboardProps> = ({ userProfile }) => {
     }
   };
 
-  // Check exception limit warning
+  // Check exception limit warning (GVK 20/B - 2025 yılı için 1.900.000 TL)
   useEffect(() => {
+    const exceptionLimit = 1900000; // GVK 20/B - Sosyal Medya İstisnası
     const totalTRY = incomeEntries.reduce((sum, entry) => sum + entry.tryValue, 0);
-    if (totalTRY > 67000) {
+    if (totalTRY > exceptionLimit) {
       addNotification({
         title: '⚠️ İstisna Limiti Aşıldı',
-        message: 'Toplam geliriniz 67.000 TL limitini aştı. Mali müşavir tutmanız gerekebilir.',
+        message: `Toplam geliriniz ${exceptionLimit.toLocaleString('tr-TR')} TL (GVK 20/B) limitini aştı. Mali müşavir tutmanız gerekebilir.`,
         type: 'warning'
       });
-    } else if (totalTRY > 60000) {
+    } else if (totalTRY > exceptionLimit * 0.9) {
       addNotification({
         title: '🔔 Limite Yaklaşıyorsunuz',
-        message: `Mevcut geliriniz ${totalTRY.toFixed(0)} TL. Limite ${(67000 - totalTRY).toFixed(0)} TL kaldı.`,
+        message: `Mevcut geliriniz ${totalTRY.toFixed(0)} TL. Limite ${(exceptionLimit - totalTRY).toLocaleString('tr-TR')} TL kaldı.`,
         type: 'info'
       });
     }
@@ -135,6 +137,11 @@ const Dashboard: React.FC<DashboardProps> = ({ userProfile }) => {
         {/* Exchange Rate Bot */}
         <div className="lg:col-span-1">
           <ExchangeRateBot />
+        </div>
+
+        {/* Tax Calendar */}
+        <div className="lg:col-span-1">
+          <TaxCalendar />
         </div>
 
         {/* Task Manager */}

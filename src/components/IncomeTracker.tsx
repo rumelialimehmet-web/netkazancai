@@ -19,7 +19,7 @@ const IncomeTracker: React.FC<IncomeTrackerProps> = ({ entries, onAddEntry }) =>
   });
 
   const totalTRY = entries.reduce((sum, entry) => sum + entry.tryValue, 0);
-  const exceptionLimit = 67000;
+  const exceptionLimit = 1900000; // GVK 20/B - Sosyal Medya İstisna Limiti 2025
   const remaining = exceptionLimit - totalTRY;
   const progressPercentage = Math.min((totalTRY / exceptionLimit) * 100, 100);
 
@@ -40,8 +40,8 @@ const IncomeTracker: React.FC<IncomeTrackerProps> = ({ entries, onAddEntry }) =>
     <div className="bg-white rounded-xl shadow-md p-6">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-bold flex items-center gap-2">
-          <DollarSign className="text-green-500" size={24} />
-          Gelir Takibi
+          <TrendingUp className="text-green-500" size={24} />
+          GVK 20/B Yıllık İstisna Limiti (2025)
         </h3>
         <button
           onClick={() => setShowModal(true)}
@@ -54,9 +54,9 @@ const IncomeTracker: React.FC<IncomeTrackerProps> = ({ entries, onAddEntry }) =>
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-gray-600">İstisna Limiti Kullanımı</span>
+          <span className="text-gray-600">Sosyal Medya İstisna Kullanımı</span>
           <span className="font-bold text-gray-900">
-            {totalTRY.toLocaleString('tr-TR')} TL / 67,000 TL
+            {totalTRY.toLocaleString('tr-TR')} TL / 1.900.000 TL
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3">

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile, IncomeEntry, Task, NewIncomeEntry } from '../types';
 import IncomeTracker from './IncomeTracker';
+import IncomeChart from './IncomeChart';
 import ExchangeRateBot from './ExchangeRateBot';
 import TaskManager from './TaskManager';
 import AIAssistant from './AIAssistant';
 import PetitionGenerator from './PetitionGenerator';
 import TaxCalendar from './TaxCalendar';
+import OnboardingTour from './OnboardingTour';
 import { useNotifications } from '../contexts/NotificationContext';
+import { Lightbulb } from 'lucide-react';
 
 interface DashboardProps {
   userProfile: UserProfile;
@@ -14,6 +17,97 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ userProfile }) => {
   const { addNotification } = useNotifications();
+
+  // Onboarding tour state
+  const [showTour, setShowTour] = useState(false);
+  const [tourCompleted, setTourCompleted] = useState(false);
+
+  // Check if tour was completed before
+  useEffect(() => {
+    const completed = localStorage.getItem('sinir-saas-tour-completed');
+    if (completed === 'true') {
+      setTourCompleted(true);
+    } else {
+      // Auto-start tour for first-time users after 2 seconds
+      const timer = setTimeout(() => {
+        setShowTour(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleTourComplete = () => {
+    setShowTour(false);
+    setTourCompleted(true);
+    localStorage.setItem('sinir-saas-tour-completed', 'true');
+    addNotification({
+      title: '🎉 Tebrikler!',
+      message: 'Başlangıç turunu tamamladınız. Artık SınırSaaS\'ı kullanmaya hazırsınız!',
+      type: 'success'
+    });
+  };
+
+  const handleTourSkip = () => {
+    setShowTour(false);
+    setTourCompleted(true);
+    localStorage.setItem('sinir-saas-tour-completed', 'true');
+  };
+
+  const handleRestartTour = () => {
+    setShowTour(true);
+  };
+
+  // Tour steps definition
+  const tourSteps = [
+    {
+      target: '[data-tour="welcome"]',
+      title: '👋 Hoş Geldiniz!',
+      description: 'SınırSaaS\'a hoş geldiniz! Bu hızlı tur ile platformumuzun tüm özelliklerini keşfedeceksiniz. Her adımda, vergi uyumunuzu kolaylaştıracak araçları tanıyacaksınız.',
+      position: 'bottom' as const
+    },
+    {
+      target: '[data-tour="income-tracker"]',
+      title: '💰 İstisna Takibi',
+      description: 'Yurt dışı gelirlerinizi buradan takip edin. GVK 20/B kapsamında 1.900.000 TL\'ye kadar istisna hakkınız var. Limit aşımından önce sizi uyarırız!',
+      position: 'right' as const
+    },
+    {
+      target: '[data-tour="exchange-rate"]',
+      title: '💱 TCMB Kur Botu',
+      description: 'Türkiye Cumhuriyet Merkez Bankası\'nın günlük döviz kurlarını burada görebilirsiniz. Gelirleriniz otomatik olarak resmi kurdan TL\'ye çevrilir.',
+      position: 'left' as const
+    },
+    {
+      target: '[data-tour="income-chart"]',
+      title: '📊 Gelir Analizi & Raporlama',
+      description: 'Gelirlerinizi görselleştirin! Çizgi, çubuk veya pasta grafiği ile aylık trendleri görün. Excel/CSV formatında rapor alın ve mali müşavirinizle paylaşın.',
+      position: 'bottom' as const
+    },
+    {
+      target: '[data-tour="tax-calendar"]',
+      title: '📅 Vergi Takvimi',
+      description: 'Yaklaşan vergi beyannamesi ve ödeme tarihlerini kaçırmayın. Önemli tarihleri size hatırlatıyoruz ve son dakika stresini önlüyoruz.',
+      position: 'right' as const
+    },
+    {
+      target: '[data-tour="task-manager"]',
+      title: '✅ Görev Yöneticisi',
+      description: 'Vergi uyumu için yapmanız gereken görevleri buradan takip edin. API entegrasyonları, beyanname tarihleri ve diğer önemli işlemler.',
+      position: 'left' as const
+    },
+    {
+      target: '[data-tour="petition"]',
+      title: '📄 Dilekçe Oluşturucu',
+      description: 'Vergi dairesine sunacağınız dilekçeleri otomatik olarak oluşturun. Bilgileriniz otomatik doldurulur, siz sadece indirin!',
+      position: 'right' as const
+    },
+    {
+      target: '[data-tour="ai-assistant"]',
+      title: '🤖 AI Vergi Asistanı',
+      description: 'Vergi mevzuatı, istisna limitleri ve beyanname süreçleri hakkında sorularınızı AI asistanımıza sorun. 7/24 size yardımcı olmaya hazır!',
+      position: 'top' as const
+    }
+  ];
 
   // Income entries state
   const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([
@@ -117,45 +211,75 @@ const Dashboard: React.FC<DashboardProps> = ({ userProfile }) => {
 
   return (
     <div className="space-y-6">
+      {/* Onboarding Tour */}
+      {showTour && (
+        <OnboardingTour
+          steps={tourSteps}
+          onComplete={handleTourComplete}
+          onSkip={handleTourSkip}
+        />
+      )}
+
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white">
-        <h1 className="text-3xl font-bold mb-2">
-          Hoş Geldiniz, {userProfile.firstName}! 👋
-        </h1>
-        <p className="text-blue-100">
-          SınırSaaS AI Ajanınız 24/7 sizin için çalışıyor. Vergi uyumunuz güvende.
-        </p>
+      <div
+        data-tour="welcome"
+        className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white"
+      >
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              Hoş Geldiniz, {userProfile.firstName}! 👋
+            </h1>
+            <p className="text-blue-100">
+              SınırSaaS AI Ajanınız 24/7 sizin için çalışıyor. Vergi uyumunuz güvende.
+            </p>
+          </div>
+          {tourCompleted && (
+            <button
+              onClick={handleRestartTour}
+              className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all backdrop-blur-sm"
+            >
+              <Lightbulb size={18} />
+              <span className="text-sm font-medium">Başlangıç Turu</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Income Tracker */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1" data-tour="income-tracker">
           <IncomeTracker entries={incomeEntries} onAddEntry={handleAddIncome} />
         </div>
 
         {/* Exchange Rate Bot */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1" data-tour="exchange-rate">
           <ExchangeRateBot />
         </div>
 
+        {/* Income Chart - Full Width */}
+        <div className="lg:col-span-2" data-tour="income-chart">
+          <IncomeChart entries={incomeEntries} />
+        </div>
+
         {/* Tax Calendar */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1" data-tour="tax-calendar">
           <TaxCalendar />
         </div>
 
         {/* Task Manager */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1" data-tour="task-manager">
           <TaskManager tasks={tasks} onToggleTask={handleToggleTask} />
         </div>
 
         {/* Petition Generator */}
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1" data-tour="petition">
           <PetitionGenerator userProfile={userProfile} />
         </div>
 
         {/* AI Assistant - Full Width */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2" data-tour="ai-assistant">
           <AIAssistant />
         </div>
       </div>

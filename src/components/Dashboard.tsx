@@ -223,7 +223,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userProfile }) => {
       {/* Welcome Banner */}
       <div
         data-tour="welcome"
-        className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-6 text-white"
+        className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-700 dark:to-purple-700 rounded-xl p-6 text-white animate-slideUp"
       >
         <div className="flex items-start justify-between">
           <div>
@@ -249,44 +249,44 @@ const Dashboard: React.FC<DashboardProps> = ({ userProfile }) => {
       {/* Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Income Tracker */}
-        <div className="lg:col-span-1" data-tour="income-tracker">
+        <div className="lg:col-span-1 animate-fadeIn" style={{ animationDelay: '0.1s' }} data-tour="income-tracker">
           <IncomeTracker entries={incomeEntries} onAddEntry={handleAddIncome} />
         </div>
 
         {/* Exchange Rate Bot */}
-        <div className="lg:col-span-1" data-tour="exchange-rate">
+        <div className="lg:col-span-1 animate-fadeIn" style={{ animationDelay: '0.2s' }} data-tour="exchange-rate">
           <ExchangeRateBot />
         </div>
 
         {/* Income Chart - Full Width */}
-        <div className="lg:col-span-2" data-tour="income-chart">
+        <div className="lg:col-span-2 animate-fadeIn" style={{ animationDelay: '0.3s' }} data-tour="income-chart">
           <IncomeChart entries={incomeEntries} />
         </div>
 
         {/* Tax Calendar */}
-        <div className="lg:col-span-1" data-tour="tax-calendar">
+        <div className="lg:col-span-1 animate-fadeIn" style={{ animationDelay: '0.4s' }} data-tour="tax-calendar">
           <TaxCalendar />
         </div>
 
         {/* Task Manager */}
-        <div className="lg:col-span-1" data-tour="task-manager">
+        <div className="lg:col-span-1 animate-fadeIn" style={{ animationDelay: '0.5s' }} data-tour="task-manager">
           <TaskManager tasks={tasks} onToggleTask={handleToggleTask} />
         </div>
 
         {/* Petition Generator */}
-        <div className="lg:col-span-1" data-tour="petition">
+        <div className="lg:col-span-1 animate-fadeIn" style={{ animationDelay: '0.6s' }} data-tour="petition">
           <PetitionGenerator userProfile={userProfile} />
         </div>
 
         {/* AI Assistant - Full Width */}
-        <div className="lg:col-span-2" data-tour="ai-assistant">
+        <div className="lg:col-span-2 animate-fadeIn" style={{ animationDelay: '0.7s' }} data-tour="ai-assistant">
           <AIAssistant />
         </div>
       </div>
 
       {/* Footer Info */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <p className="text-sm text-yellow-900">
+      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 animate-fadeIn" style={{ animationDelay: '0.8s' }}>
+        <p className="text-sm text-yellow-900 dark:text-yellow-200">
           <strong>💡 Pro İpucu:</strong> Backend API hazır olduğunda, Stripe/PayPal gelirleriniz otomatik olarak
           buraya eklenecek. TCMB kurları da günlük güncellenecek!
         </p>
